@@ -57,6 +57,12 @@ class AnalysisResult(BaseModel):
     zero_crossing_rate: float
     spectral_contrast: list
     beats: list
+    rmse: float
+    spectral_flatness: float
+    tempo_confidence: float
+    harmonic_rmse: float
+    percussive_rmse: float
+    duration: float
 
 # --- "Database" and Helper Functions ---
 fake_users_db = {
@@ -153,7 +159,11 @@ async def analyze_music(
                 "key": "N/A", "chromagram": [0]*12,
                 "spectral_centroid": 0, "zero_crossing_rate": 0,
                 "spectral_contrast": [0]*7, "beats": [],
+                "rmse": 0, "spectral_flatness": 0, "tempo_confidence": 0,
+                "harmonic_rmse": 0, "percussive_rmse": 0, "duration": 0,
             }
+
+        duration = librosa.get_duration(y=y, sr=sr)
 
         # Existing analysis
         tempo_array, beat_frames = librosa.beat.beat_track(y=y, sr=sr, units='frames')
@@ -161,7 +171,7 @@ async def analyze_music(
         beat_times = librosa.frames_to_time(beat_frames, sr=sr)
 
         pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
-        if pitches.size > 0:
+        if pitches.size > 0 and np.median(magnitudes) > 0:
             dominant_pitch_freq = np.median(pitches[magnitudes > np.median(magnitudes)])
             dominant_pitch_note = librosa.hz_to_note(dominant_pitch_freq) if dominant_pitch_freq > 0 else "N/A"
         else:
@@ -179,16 +189,38 @@ async def analyze_music(
         zero_crossing_rate = np.mean(librosa.feature.zero_crossing_rate(y))
         spectral_contrast = np.mean(librosa.feature.spectral_contrast(y=y, sr=sr), axis=1)
 
+        # New metrics
+        rmse = librosa.feature.rms(y=y)[0].mean()
+        spectral_flatness = librosa.feature.spectral_flatness(y=y)[0].mean()
+        
+        # Ensure onset_env is not empty for tempo calculation
+        # In newer librosa versions, tempo can be calculated directly from y and sr
+        tempo_confidence = librosa.feature.rhythm.tempo(y=y, sr=sr)[0]
+
+        y_harmonic, y_percussive = librosa.effects.hpss(y)
+        harmonic_rmse = librosa.feature.rms(y=y_harmonic)[0].mean()
+        percussive_rmse = librosa.feature.rms(y=y_percussive)[0].mean()
+
+        # Helper to handle NaN/inf values
+        def safe_float(value):
+            return float(value) if np.isfinite(value) else 0.0
+
         return {
             "filename": file.filename,
-            "tempo": round(tempo, 2),
+            "tempo": round(safe_float(tempo), 2),
             "pitch": dominant_pitch_note,
             "key": f"{key} Major/Minor",
             "chromagram": chromagram_visual,
-            "spectral_centroid": round(spectral_centroid, 2),
-            "zero_crossing_rate": round(zero_crossing_rate, 4),
-            "spectral_contrast": spectral_contrast.tolist(),
-            "beats": beat_times.tolist(),
+            "spectral_centroid": round(safe_float(spectral_centroid), 2),
+            "zero_crossing_rate": round(safe_float(zero_crossing_rate), 4),
+            "spectral_contrast": [safe_float(x) for x in spectral_contrast.tolist()],
+            "beats": [safe_float(x) for x in beat_times.tolist()],
+            "rmse": round(safe_float(rmse), 4),
+            "spectral_flatness": round(safe_float(spectral_flatness), 4),
+            "tempo_confidence": round(safe_float(tempo_confidence), 4),
+            "harmonic_rmse": round(safe_float(harmonic_rmse), 4),
+            "percussive_rmse": round(safe_float(percussive_rmse), 4),
+            "duration": round(safe_float(duration), 2),
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")

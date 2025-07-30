@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audio Analyzer - AI-Powered Music Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -115,23 +116,6 @@
             font-size: 1.8rem;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 30px;
-            align-items: center;
-        }
-
-        .nav-link {
-            color: rgba(255, 255, 255, 0.7);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-
-        .nav-link:hover {
-            color: #ffffff;
-        }
-
         .nav-buttons {
             display: flex;
             gap: 15px;
@@ -152,22 +136,6 @@
         .sign-in-btn:hover, .logout-btn:hover {
             border-color: #6366f1;
             background: rgba(99, 102, 241, 0.1);
-        }
-
-        .get-started-btn {
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            border: none;
-            color: #ffffff;
-            padding: 10px 25px;
-            border-radius: 25px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .get-started-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
         }
 
         /* Login Modal */
@@ -283,42 +251,6 @@
             font-weight: 400;
         }
 
-        .try-free-btn {
-            background: linear-gradient(135deg, #ff6b35, #f7931e);
-            border: none;
-            color: #ffffff;
-            padding: 15px 35px;
-            border-radius: 30px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .try-free-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .try-free-btn:hover::before {
-            left: 100%;
-        }
-
-        .try-free-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(255, 107, 53, 0.4);
-        }
-
         /* Upload Section */
         .upload-section {
             background: rgba(255, 255, 255, 0.03);
@@ -328,11 +260,6 @@
             padding: 40px;
             margin-bottom: 40px;
             transition: all 0.3s ease;
-        }
-
-        .upload-section:hover {
-            border-color: rgba(99, 102, 241, 0.3);
-            background: rgba(255, 255, 255, 0.05);
         }
 
         .upload-area {
@@ -348,12 +275,6 @@
         .upload-area:hover {
             border-color: #6366f1;
             background: rgba(99, 102, 241, 0.05);
-        }
-
-        .upload-area.dragover {
-            border-color: #3b82f6;
-            background: rgba(59, 130, 246, 0.1);
-            transform: scale(1.02);
         }
 
         .upload-icon {
@@ -393,8 +314,6 @@
 
         .choose-file-btn:hover {
             background: #6366f1;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
         }
 
         .analyze-btn {
@@ -411,31 +330,19 @@
             display: none;
         }
 
-        .analyze-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4);
-        }
-
         .analyze-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
         }
 
         .file-info {
             display: none;
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            border-radius: 10px;
-            padding: 15px;
             margin: 20px 0;
-            color: #ffffff;
         }
 
         .loading {
             display: none;
             text-align: center;
-            color: rgba(255, 255, 255, 0.8);
             margin: 30px 0;
         }
 
@@ -454,198 +361,73 @@
             background: linear-gradient(90deg, #6366f1, #8b5cf6, #3b82f6);
             border-radius: 5px;
             transition: width 0.5s ease-in-out;
-            animation: loading-animation 2s infinite;
-        }
-
-        @keyframes loading-animation {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
-        .spinner {
-            display: none; /* Hide the old spinner */
         }
 
         /* Results Section */
         .results-section {
             display: none;
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
             padding: 40px;
-            animation: slideUp 0.8s ease-out;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .results-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-            margin-bottom: 50px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
         }
 
         .metric-card {
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 15px;
-            padding: 30px;
+            padding: 20px;
             text-align: center;
-            transition: all 0.3s ease;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #6366f1;
+        }
+
+        .metric-label {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .beat-timeline {
+            height: 50px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            margin-top: 20px;
             position: relative;
             overflow: hidden;
         }
 
-        .metric-card::before {
-            content: '';
+        .beat-marker {
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.1), transparent 70%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .metric-card:hover::before {
-            opacity: 1;
-        }
-
-        .metric-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(99, 102, 241, 0.3);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .metric-value {
-            font-size: 3rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 15px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .metric-label {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1.1rem;
-            font-weight: 500;
-            position: relative;
-            z-index: 1;
-        }
-
-        .chromagram-section {
-            margin-top: 40px;
-        }
-
-        .section-title {
-            color: #ffffff;
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .chromagram-container {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 30px;
-            overflow-x: auto;
-        }
-
-        .chromagram {
-            display: flex;
-            gap: 4px;
-            min-width: 600px;
-            height: 250px;
-            align-items: flex-end;
-        }
-
-        .chroma-bar {
-            flex: 1;
-            background: linear-gradient(to top, #6366f1, #8b5cf6, #3b82f6);
-            border-radius: 4px 4px 0 0;
-            transition: all 0.3s ease;
-            position: relative;
-            cursor: pointer;
-            filter: drop-shadow(0 2px 8px rgba(99, 102, 241, 0.3));
-        }
-
-        .chroma-bar:hover {
-            filter: brightness(1.3) drop-shadow(0 4px 15px rgba(99, 102, 241, 0.5));
-            transform: scaleY(1.1) scaleX(1.1);
-        }
-
-        .chroma-label {
-            position: absolute;
-            bottom: -30px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.9rem;
-            font-weight: 600;
+            width: 2px;
+            height: 100%;
+            background: #6366f1;
         }
 
         .error-message {
+            color: #fca5a5;
             background: rgba(239, 68, 68, 0.1);
             border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 10px;
             padding: 15px;
-            color: #fca5a5;
+            border-radius: 10px;
             text-align: center;
             margin: 20px 0;
             display: none;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Mobile Responsiveness */
-        @media (max-width: 768px) {
-            .header-nav {
-                padding: 15px 20px;
-            }
-
-            .nav-links {
-                display: none;
-            }
-
-            .container {
-                padding: 100px 20px 40px;
-            }
-
-            .hero-title {
-                font-size: 3rem;
-            }
-
-            .hero-subtitle {
-                font-size: 1.1rem;
-            }
-
-            .upload-section, .results-section {
-                padding: 25px;
-            }
-
-            .upload-area {
-                padding: 40px 20px;
-            }
-
-            .results-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
         }
     </style>
 </head>
@@ -670,8 +452,8 @@
             <button class="close-modal" id="closeModal">&times;</button>
             <h2 class="modal-title">Sign In</h2>
             <form class="login-form" id="loginForm">
-                <input type="text" id="username" placeholder="Username (user)" required>
-                <input type="password" id="password" placeholder="Password (password)" required>
+                <input type="text" id="username" placeholder="Username (user/admin)" required>
+                <input type="password" id="password" placeholder="Password (password/admin)" required>
                 <button type="submit" class="login-btn">Login</button>
             </form>
             <div class="error-message" id="loginError"></div>
@@ -684,36 +466,28 @@
             <p class="hero-subtitle">Upload an audio file to begin your analysis.</p>
         </div>
 
-        <div class="upload-section" id="uploadSection">
+        <div class="upload-section">
             <div class="upload-area" id="uploadArea">
                 <span class="upload-icon">🎵</span>
                 <div class="upload-text">Drop your audio file here</div>
                 <div class="upload-subtext">or click to browse (MP3, WAV supported)</div>
-                <input type="file" id="fileInput" accept=".mp3,.wav" />
-                <button class="choose-file-btn" onclick="document.getElementById('fileInput').click()">
-                    Choose File
-                </button>
+                <input type="file" id="fileInput" accept=".mp3,.wav">
             </div>
-
             <div class="file-info" id="fileInfo">
                 <strong>Selected:</strong> <span id="fileName"></span>
             </div>
-
+            <button class="analyze-btn" id="analyzeBtn">Analyze Audio</button>
             <div class="loading" id="loading">
                 <div class="loading-bar-container">
                     <div class="loading-bar" id="loadingBar"></div>
                 </div>
-                <div>Analyzing your audio... This may take a moment</div>
+                <div>Analyzing your audio...</div>
             </div>
-
             <div class="error-message" id="errorMessage"></div>
-
-            <button class="analyze-btn" id="analyzeBtn" onclick="analyzeAudio()">
-                Analyze Audio
-            </button>
         </div>
 
         <div class="results-section" id="resultsSection">
+            <h2 class="section-title">Analysis Results</h2>
             <div class="results-grid">
                 <div class="metric-card">
                     <div class="metric-value" id="tempoValue">--</div>
@@ -727,15 +501,44 @@
                     <div class="metric-value" id="keyValue">--</div>
                     <div class="metric-label">Estimated Key</div>
                 </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="centroidValue">--</div>
+                    <div class="metric-label">Spectral Centroid</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="zcrValue">--</div>
+                    <div class="metric-label">Zero-Crossing Rate</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="rmseValue">--</div>
+                    <div class="metric-label">RMSE</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="flatnessValue">--</div>
+                    <div class="metric-label">Spectral Flatness</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="tempoConfidenceValue">--</div>
+                    <div class="metric-label">Tempo Confidence</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="harmonicRmseValue">--</div>
+                    <div class="metric-label">Harmonic RMSE</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="percussiveRmseValue">--</div>
+                    <div class="metric-label">Percussive RMSE</div>
+                </div>
             </div>
 
-            <div class="chromagram-section">
-                <h3 class="section-title">Chromagram Analysis</h3>
-                <div class="chromagram-container">
-                    <div class="chromagram" id="chromagram">
-                        <!-- Chromagram bars will be generated here -->
-                    </div>
-                </div>
+            <div class="chromagram-section" style="height: 400px; margin-top: 40px;">
+                <h3 class="section-title">Spectral Contrast</h3>
+                <canvas id="spectralContrastChart"></canvas>
+            </div>
+            
+            <div class="chromagram-section" style="margin-top: 40px;">
+                <h3 class="section-title">Beat Timeline</h3>
+                <div class="beat-timeline" id="beatTimeline"></div>
             </div>
         </div>
     </div>
@@ -743,51 +546,41 @@
     <script>
         let selectedFile = null;
         let accessToken = null;
+        let spectralContrastChart = null;
 
-        // Element selections
-        const fileInput = document.getElementById('fileInput');
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInfo = document.getElementById('fileInfo');
-        const fileName = document.getElementById('fileName');
-        const analyzeBtn = document.getElementById('analyzeBtn');
-        const loading = document.getElementById('loading');
-        const errorMessage = document.getElementById('errorMessage');
-        const resultsSection = document.getElementById('resultsSection');
         const signInBtn = document.getElementById('signInBtn');
         const logoutBtn = document.getElementById('logoutBtn');
         const loginModal = document.getElementById('loginModal');
         const closeModal = document.getElementById('closeModal');
         const loginForm = document.getElementById('loginForm');
         const loginError = document.getElementById('loginError');
+        const mainContent = document.getElementById('mainContent');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const loading = document.getElementById('loading');
+        const loadingBar = document.getElementById('loadingBar');
+        const errorMessage = document.getElementById('errorMessage');
+        const resultsSection = document.getElementById('resultsSection');
 
-        function scrollToUpload() {
-            document.getElementById('uploadSection').scrollIntoView({
-                behavior: 'smooth',
-                block: 'center'
-            });
-        }
-
-        // --- Authentication Logic ---
-        signInBtn.addEventListener('click', () => {
-            loginModal.classList.add('active');
-        });
-
-        closeModal.addEventListener('click', () => {
-            loginModal.classList.remove('active');
-        });
+        // --- Auth Logic ---
+        signInBtn.addEventListener('click', () => loginModal.classList.add('active'));
+        closeModal.addEventListener('click', () => loginModal.classList.remove('active'));
 
         logoutBtn.addEventListener('click', () => {
             accessToken = null;
             logoutBtn.style.display = 'none';
             signInBtn.style.display = 'block';
-            showError('You have been logged out.');
+            mainContent.style.display = 'none';
         });
 
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-
             const formData = new FormData();
             formData.append('username', username);
             formData.append('password', password);
@@ -797,103 +590,69 @@
                     method: 'POST',
                     body: new URLSearchParams(formData)
                 });
-
-                if (!response.ok) {
-                    throw new Error('Invalid credentials');
-                }
-
+                if (!response.ok) throw new Error('Invalid credentials');
+                
                 const data = await response.json();
                 accessToken = data.access_token;
 
                 loginModal.classList.remove('active');
                 signInBtn.style.display = 'none';
                 logoutBtn.style.display = 'block';
-                document.getElementById('mainContent').style.display = 'block';
+                mainContent.style.display = 'block';
 
                 const userResponse = await fetch('http://127.0.0.1:8001/users/me', {
                     headers: { 'Authorization': `Bearer ${accessToken}` }
                 });
                 const userData = await userResponse.json();
-                document.getElementById('welcomeMessage').textContent = `Welcome, ${userData.username}!`;
-
-                hideError();
-
+                welcomeMessage.textContent = `Welcome, ${userData.username}!`;
+                loginError.style.display = 'none';
             } catch (error) {
                 loginError.textContent = error.message;
                 loginError.style.display = 'block';
             }
         });
 
-        // --- File Handling and Analysis ---
+        // --- File Handling & Analysis ---
         uploadArea.addEventListener('click', () => fileInput.click());
-
+        fileInput.addEventListener('change', (e) => handleFileSelect(e.target.files[0]));
         uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
             uploadArea.classList.add('dragover');
         });
-
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-
+        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
         uploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
             uploadArea.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleFileSelect(files[0]);
-            }
-        });
-
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleFileSelect(e.target.files[0]);
-            }
+            if (e.dataTransfer.files.length > 0) handleFileSelect(e.dataTransfer.files[0]);
         });
 
         function handleFileSelect(file) {
-            if (!file.type.includes('audio') && !file.name.match(/\.(mp3|wav)$/i)) {
-                showError('Please select a valid audio file (MP3 or WAV)');
-                return;
-            }
-
-            if (file.size > 50 * 1024 * 1024) {
-                showError('File size must be less than 50MB');
-                return;
-            }
-
+            if (!file) return;
             selectedFile = file;
             fileName.textContent = file.name;
             fileInfo.style.display = 'block';
             analyzeBtn.style.display = 'block';
-            hideError();
         }
 
-        async function analyzeAudio() {
-            if (!selectedFile) {
-                showError('Please select an audio file first');
-                return;
-            }
-            if (!accessToken) {
-                showError('Please sign in to analyze audio');
+        analyzeBtn.addEventListener('click', async () => {
+            if (!selectedFile || !accessToken) {
+                showError(!selectedFile ? 'Please select a file.' : 'Please sign in.');
                 return;
             }
 
             loading.style.display = 'block';
-            const loadingBar = document.getElementById('loadingBar');
             loadingBar.style.width = '0%';
             analyzeBtn.disabled = true;
             resultsSection.style.display = 'none';
             hideError();
 
-            // Animate the loading bar
+            // More realistic loading bar
+            const fileSizeMB = selectedFile.size / (1024 * 1024);
+            const estimatedDuration = 500 + (fileSizeMB * 1000); // Base time + time per MB
             let progress = 0;
             const interval = setInterval(() => {
-                progress += 5;
+                progress = Math.min(progress + (100 / (estimatedDuration / 100)), 95);
                 loadingBar.style.width = `${progress}%`;
-                if (progress >= 95) { // Stop just before 100%
-                    clearInterval(interval);
-                }
             }, 100);
 
             try {
@@ -908,17 +667,8 @@
                     body: formData
                 });
 
-                clearInterval(interval); // Stop the animation
-                loadingBar.style.width = '100%'; // Complete the bar
-
-                if (response.status === 401) {
-                    showError('Authentication failed. Please sign in again.');
-                    accessToken = null;
-                    signInBtn.style.display = 'block';
-                    logoutBtn.style.display = 'none';
-                    document.getElementById('mainContent').style.display = 'none';
-                    return;
-                }
+                clearInterval(interval);
+                loadingBar.style.width = '100%';
 
                 if (!response.ok) {
                     const errorData = await response.json();
@@ -930,44 +680,126 @@
 
             } catch (error) {
                 showError(`Error: ${error.message}`);
-                console.error('Analysis error:', error);
                 clearInterval(interval);
             } finally {
                 setTimeout(() => {
                     loading.style.display = 'none';
-                    loadingBar.style.width = '0%';
-                }, 500); // Hide after a short delay
+                }, 500);
                 analyzeBtn.disabled = false;
             }
-        }
+        });
 
         function displayResults(results) {
             document.getElementById('tempoValue').textContent = results.tempo;
             document.getElementById('pitchValue').textContent = results.pitch;
             document.getElementById('keyValue').textContent = results.key;
-            generateChromagram(results.chromagram);
+            document.getElementById('centroidValue').textContent = results.spectral_centroid;
+            document.getElementById('zcrValue').textContent = results.zero_crossing_rate;
+            document.getElementById('rmseValue').textContent = results.rmse;
+            document.getElementById('flatnessValue').textContent = results.spectral_flatness;
+            document.getElementById('tempoConfidenceValue').textContent = results.tempo_confidence;
+            document.getElementById('harmonicRmseValue').textContent = results.harmonic_rmse;
+            document.getElementById('percussiveRmseValue').textContent = results.percussive_rmse;
+
+            generateSpectralContrastChart(results.spectral_contrast);
+            generateBeatTimeline(results.beats, results.duration);
+
             resultsSection.style.display = 'block';
             resultsSection.scrollIntoView({ behavior: 'smooth' });
         }
 
-        function generateChromagram(chromaData) {
-            const chromaLabels = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-            const chromagramContainer = document.getElementById('chromagram');
-            chromagramContainer.innerHTML = '';
+        function generateSpectralContrastChart(contrastData) {
+            const ctx = document.getElementById('spectralContrastChart').getContext('2d');
+            const labels = ['Band 1', 'Band 2', 'Band 3', 'Band 4', 'Band 5', 'Band 6', 'Overall'];
+            
+            if (spectralContrastChart) {
+                spectralContrastChart.destroy();
+            }
 
-            chromaData.forEach((value, index) => {
-                const bar = document.createElement('div');
-                bar.className = 'chroma-bar';
-                bar.style.height = `${value * 100}%`;
-                bar.style.opacity = 0.7 + (value * 0.3);
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(99, 102, 241, 0.8)');
+            gradient.addColorStop(1, 'rgba(139, 92, 246, 0.8)');
 
-                const label = document.createElement('div');
-                label.className = 'chroma-label';
-                label.textContent = chromaLabels[index];
+            Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
 
-                bar.appendChild(label);
-                chromagramContainer.appendChild(bar);
+            spectralContrastChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Spectral Contrast',
+                        data: contrastData,
+                        backgroundColor: gradient,
+                        borderColor: 'rgba(99, 102, 241, 1)',
+                        borderWidth: 1,
+                        borderRadius: 5,
+                        hoverBackgroundColor: 'rgba(99, 102, 241, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: 10
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)',
+                                drawBorder: false,
+                            },
+                            ticks: {
+                                color: '#a1a1aa',
+                                padding: 10,
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false,
+                            },
+                            ticks: {
+                                color: '#a1a1aa',
+                                padding: 10,
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: '#1a1a2e',
+                            titleColor: '#ffffff',
+                            bodyColor: '#a1a1aa',
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                            borderWidth: 1,
+                            padding: 15,
+                            cornerRadius: 10,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `Value: ${context.raw.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    }
+                }
             });
+        }
+
+        function generateBeatTimeline(beats, duration) {
+            const timeline = document.getElementById('beatTimeline');
+            timeline.innerHTML = '';
+            if (duration > 0) {
+                beats.forEach(beatTime => {
+                    const marker = document.createElement('div');
+                    marker.className = 'beat-marker';
+                    marker.style.left = `${(beatTime / duration) * 100}%`;
+                    timeline.appendChild(marker);
+                });
+            }
         }
 
         function showError(message) {
@@ -978,17 +810,6 @@
         function hideError() {
             errorMessage.style.display = 'none';
         }
-
-        document.addEventListener('mousemove', (e) => {
-            const mouseX = e.clientX / window.innerWidth;
-            const mouseY = e.clientY / window.innerHeight;
-
-            const orb1 = document.querySelector('.orb-1');
-            const orb2 = document.querySelector('.orb-2');
-
-            orb1.style.transform = `translate(${mouseX * 30}px, ${mouseY * 30}px) scale(1.1)`;
-            orb2.style.transform = `translate(${mouseX * -20}px, ${mouseY * -20}px) scale(1.1)`;
-        });
     </script>
 </body>
 </html>
