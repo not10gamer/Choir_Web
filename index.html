@@ -205,6 +205,24 @@
             cursor: pointer;
         }
 
+        .sign-in-btn-large {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+            color: #ffffff;
+            padding: 20px 50px;
+            border-radius: 30px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 40px;
+        }
+
+        .sign-in-btn-large:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+        }
+
         .close-modal {
             position: absolute;
             top: 15px;
@@ -452,11 +470,19 @@
             <button class="close-modal" id="closeModal">&times;</button>
             <h2 class="modal-title">Sign In</h2>
             <form class="login-form" id="loginForm">
-                <input type="text" id="username" placeholder="Username (user/admin)" required>
-                <input type="password" id="password" placeholder="Password (password/admin)" required>
+                <input type="text" id="username" placeholder="Username" required>
+                <input type="password" id="password" placeholder="Password" required>
                 <button type="submit" class="login-btn">Login</button>
             </form>
             <div class="error-message" id="loginError"></div>
+        </div>
+    </div>
+
+    <div class="container" id="authContent">
+        <div class="hero-section" style="text-align: center; max-width: 100%;">
+            <h1 class="hero-title">Welcome to Audio Analyzer</h1>
+            <p class="hero-subtitle">Please sign in to unlock the full experience.</p>
+            <button class="sign-in-btn-large" id="signInBtnLarge">SIGN IN TO GET STARTED</button>
         </div>
     </div>
 
@@ -470,7 +496,7 @@
             <div class="upload-area" id="uploadArea">
                 <span class="upload-icon">🎵</span>
                 <div class="upload-text">Drop your audio file here</div>
-                <div class="upload-subtext">or click to browse (MP3, WAV supported)</div>
+                <div class="upload-subtext">or click to browse (MP3, WAV supported, any sample rate)</div>
                 <input type="file" id="fileInput" accept=".mp3,.wav">
             </div>
             <div class="file-info" id="fileInfo">
@@ -555,6 +581,8 @@
         const loginForm = document.getElementById('loginForm');
         const loginError = document.getElementById('loginError');
         const mainContent = document.getElementById('mainContent');
+        const authContent = document.getElementById('authContent');
+        const signInBtnLarge = document.getElementById('signInBtnLarge');
         const welcomeMessage = document.getElementById('welcomeMessage');
         const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('fileInput');
@@ -568,6 +596,7 @@
 
         // --- Auth Logic ---
         signInBtn.addEventListener('click', () => loginModal.classList.add('active'));
+        signInBtnLarge.addEventListener('click', () => loginModal.classList.add('active'));
         closeModal.addEventListener('click', () => loginModal.classList.remove('active'));
 
         logoutBtn.addEventListener('click', () => {
@@ -575,6 +604,7 @@
             logoutBtn.style.display = 'none';
             signInBtn.style.display = 'block';
             mainContent.style.display = 'none';
+            authContent.style.display = 'block';
         });
 
         loginForm.addEventListener('submit', async (e) => {
@@ -599,12 +629,17 @@
                 signInBtn.style.display = 'none';
                 logoutBtn.style.display = 'block';
                 mainContent.style.display = 'block';
+                authContent.style.display = 'none';
 
                 const userResponse = await fetch('http://127.0.0.1:8001/users/me', {
                     headers: { 'Authorization': `Bearer ${accessToken}` }
                 });
                 const userData = await userResponse.json();
-                welcomeMessage.textContent = `Welcome, ${userData.username}!`;
+                if (userData.username === 'admin') {
+                    welcomeMessage.textContent = 'Welcome, Ethan!';
+                } else {
+                    welcomeMessage.textContent = `Welcome, ${userData.username}!`;
+                }
                 loginError.style.display = 'none';
             } catch (error) {
                 loginError.textContent = error.message;
@@ -720,7 +755,7 @@
             gradient.addColorStop(0, 'rgba(99, 102, 241, 0.8)');
             gradient.addColorStop(1, 'rgba(139, 92, 246, 0.8)');
 
-            Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
+            Chart.defaults.font.family = "''Inter'', -apple-system, BlinkMacSystemFont, sans-serif";
 
             spectralContrastChart = new Chart(ctx, {
                 type: 'bar',

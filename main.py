@@ -66,15 +66,15 @@ class AnalysisResult(BaseModel):
 
 # --- "Database" and Helper Functions ---
 fake_users_db = {
-    "user": {
-        "username": "user",
-        "hashed_password": pwd_context.hash("password"),
-        "scopes": ["user"],
-    },
     "admin": {
         "username": "admin",
         "hashed_password": pwd_context.hash("admin"),
         "scopes": ["admin", "user"],
+    },
+    "Ethos": {
+        "username": "Ethos",
+        "hashed_password": pwd_context.hash("temp_password"),
+        "scopes": ["user"],
     },
 }
 
